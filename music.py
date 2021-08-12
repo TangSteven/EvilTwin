@@ -35,6 +35,7 @@ class Music(commands.Cog):
         with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
             info = ydl.extract_info(url, download=False)
             self.q.append(info)
+            embed = discord.Embed()
             await ctx.send(f"Queued: **{info.get('title', None)}** to position {len(self.q)} by {ctx.author.name}")
         try:
             if self.q[0]:
@@ -71,11 +72,12 @@ class Music(commands.Cog):
     
     @commands.command()
     async def queue(self, ctx):
-        embed = discord.Embed(title = "Queue")
+        embed = discord.Embed(title = "Queue", color = discord.Colour.blue())
         embed.set_footer(text = "Property of Tang :3")
         if self.q:
             for urlInd in range(len(self.q)):
-                embed.add_field(name = f"**{urlInd+1})**", value = f"{self.q[urlInd].get('title', None)}", inline = False)
+                embed.add_field(name = f"{urlInd+1})", value = f"""```yaml
+{self.q[urlInd].get('title', None)}```""", inline = False)
         else:
              embed.add_field(name = "QUEUE IS EMPTY!!!!", value = "ADD SOME SONGS WITH !play {url}", inline = False)
         await ctx.send(embed = embed)
