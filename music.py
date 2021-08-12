@@ -29,6 +29,8 @@ class Music(commands.Cog):
     async def disconnect(self, ctx):
         await ctx.voice_client.disconnect()
 
+    
+
     @commands.command()
     async def play(self, ctx, url):
         vc = ctx.voice_client
@@ -69,6 +71,25 @@ class Music(commands.Cog):
         if ctx.voice_client != None:
             ctx.voice_client.stop()
             await ctx.send("Stopping! ")
+    
+    @commands.command()
+    async def skip(self, ctx):
+        if ctx.voice_client != None:
+            ctx.voice_client.stop()
+            await ctx.send("Skipping to next song!")
+            if self.q[0]:
+                embed = discord.Embed(title = "Current Song", description = f"Playing **{self.q[0].get('title', None)}**", color = discord.Colour.red(), url = self.q[0].get('url', None))
+                url2 = self.q[0]['formats'][0]['url']
+                source = await discord.FFmpegOpusAudio.from_probe(
+                url2, **FFMPEG_OPTIONS)
+                ctx.voice_client.play(source)
+                self.q.popleft()
+            
+            await ctx.send(embed = embed)
+
+
+                
+            
     
     @commands.command()
     async def queue(self, ctx):

@@ -1,6 +1,8 @@
+import keep_alive
 import discord
 from discord.ext import commands
 import os
+
 
 import music
 import chatting
@@ -23,4 +25,5 @@ cogs = [music, chatting]
 for i in range(len(cogs)):
     cogs[i].setup(bot)
 
+keep_alive.keep_alive()
 bot.run(TOKEN)
