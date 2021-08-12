@@ -9,7 +9,7 @@ TOKEN = os.environ['DISCORD_TOKEN']
 
 
 
-aactivity = discord.Game("with fire", url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+aactivity = discord.Streaming(name = "with fire", url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all(), activity = aactivity)
 
 @bot.event
