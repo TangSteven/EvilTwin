@@ -9,8 +9,9 @@ TOKEN = os.environ['DISCORD_TOKEN']
 
 
 
-aactivity = discord.Streaming(name = "with fire", url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all(), activity = aactivity)
+activity = discord.Streaming(name = "PERSON GETS TRICKED IRL!!", url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all(), activity = activity)
 
 @bot.event
 async def on_ready():

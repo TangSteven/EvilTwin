@@ -1,12 +1,19 @@
 import discord
 from discord.ext import commands
 import youtube_dl
+from collections import deque
 
-
+FFMPEG_OPTIONS = {
+                'before_options':
+                '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                'options': '-vn'
+            }
+YDL_OPTIONS = {'format': 'bestaudio'}
 
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.q = deque()
 
     @commands.command()
     async def join(self, ctx):
@@ -25,14 +32,7 @@ class Music(commands.Cog):
     @commands.command()
     async def play(self, ctx, url):
         try:
-            FFMPEG_OPTIONS = {
-                'before_options':
-                '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                'options': '-vn'
-            }
-            YDL_OPTIONS = {'format': 'bestaudio'}
             vc = ctx.voice_client
-
             with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
                 info = ydl.extract_info(url, download=False)
                 url2 = info['formats'][0]['url']
@@ -43,6 +43,8 @@ class Music(commands.Cog):
             await ctx.send(embed = embed)
         except discord.ClientException:
             print("There is already a song playing")
+            self.q.append(url)
+            await ctx.send(f"Queued: **{info.get('title', None)}** by {ctx.author.name}")
             # add to song queue
         
         # after each song ends, go to next song at top of queue
@@ -64,6 +66,16 @@ class Music(commands.Cog):
         if ctx.voice_client != None:
             ctx.voice_client.stop()
             await ctx.send("Stopping! ")
+    
+    @commands.command()
+    async def queue(self, ctx):
+        embed = discord.Embed(title = "Queue")
+        counter = 1
+        for url in self.q:
+            with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+                info = ydl.extract_info(url, download=False)
+            embed.add_field(name = f"{counter})", value = f"{info.get('title', None)}", inline = False)
+        await ctx.send(embed = embed)
 
 #add queue
 #add looping
