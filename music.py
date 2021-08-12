@@ -31,20 +31,22 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, url):
+        vc = ctx.voice_client
+        with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+            info = ydl.extract_info(url, download=False)
+            self.q.append(info)
+            await ctx.send(f"Queued: **{info.get('title', None)}** to position {len(self.q)} by {ctx.author.name}")
         try:
-            vc = ctx.voice_client
-            with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-                info = ydl.extract_info(url, download=False)
-                url2 = info['formats'][0]['url']
+            if self.q[0]:
+                url2 = self.q[0]['formats'][0]['url']
                 source = await discord.FFmpegOpusAudio.from_probe(
                     url2, **FFMPEG_OPTIONS)
                 vc.play(source)
+                self.q.popleft()
             embed = discord.Embed(title = "Current Song", description = f"Playing **{info.get('title', None)}**", color = discord.Colour.red(), url = url)
             await ctx.send(embed = embed)
         except discord.ClientException:
             print("There is already a song playing")
-            self.q.append(url)
-            await ctx.send(f"Queued: **{info.get('title', None)}** by {ctx.author.name}")
             # add to song queue
         
         # after each song ends, go to next song at top of queue
@@ -70,11 +72,12 @@ class Music(commands.Cog):
     @commands.command()
     async def queue(self, ctx):
         embed = discord.Embed(title = "Queue")
-        counter = 1
-        for url in self.q:
-            with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-                info = ydl.extract_info(url, download=False)
-            embed.add_field(name = f"{counter})", value = f"{info.get('title', None)}", inline = False)
+        embed.set_footer(text = "Property of Tang :3")
+        if self.q:
+            for urlInd in range(len(self.q)):
+                embed.add_field(name = f"**{urlInd+1})**", value = f"{self.q[urlInd].get('title', None)}", inline = False)
+        else:
+             embed.add_field(name = "QUEUE IS EMPTY!!!!", value = "ADD SOME SONGS WITH !play {url}", inline = False)
         await ctx.send(embed = embed)
 
 #add queue
